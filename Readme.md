@@ -30,6 +30,10 @@ For podman compose
 ### Scale 
 ```docker-compose -f docker/docker-compose.yml up --scale tinyurl=2```
 
+### Stop
+From this folder
+
+```docker-compose down -f docker/docker-compose.yml```
 
 ## Testing
 
