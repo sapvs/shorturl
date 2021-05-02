@@ -7,13 +7,12 @@ package: clean
 clean:
 	mvn clean
 
-p:
+pod: package
 	podman-compose -f docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
 
-d:
+dock:
 	sudo docker-compose -f docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
 
-k:
-	sudo docker-compose -f docker/docker-compose.yml down
+kill:
 	podman-compose -f docker/docker-compose.yml down
 

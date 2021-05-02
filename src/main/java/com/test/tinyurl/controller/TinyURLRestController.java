@@ -54,7 +54,7 @@ public class TinyURLRestController {
             @ApiResponse(code = 500, message = "Internal server error"),
             @ApiResponse(code = 404, message = "Short URL not found in database.")})
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<TinyURLData> createShortURL(@RequestBody URI longUrl) {
+    public ResponseEntity<TinyURLData> createShortURL(@RequestBody String longUrl) {
         return new ResponseEntity<TinyURLData>(tinyURLService.createShortURLMapping(longUrl.toString()), HttpStatus.CREATED);
     }
 }
