@@ -1,40 +1,64 @@
-Sapvas
+# Tiny URL 
+## Architecture
+1. nginx frontend
+1. Spring Boot Backend
+   1. Spring Starter Web
+   1. Spring Starter Redis
+   1. Spring Starter Data Cassandra
+1. Redis Cache
+1. Cassandra Database 
 
-1. Added nginx for scaling the tinyurl app
-   1. why not scale cassandra, that is not our respo, our resp is our app
-1. Removed cassandra password and multiple cassandra instances.
-1. Map use in case of cache is not so good approach 
-    1. it will grow in size, 
-    2. how it is available in case of multiple instances is doubt.
-    
 
-for packaging and building docker image:
+## Build
+### Compile and package 
+```mvn clean package```
 
-```mvn clean package && docker build -t tinyurl .```
+### Docker Compose
+From this folder
 
-for up/down
+```docker-compose up -f docker/docker-compose.yml```
 
-```docker-compose -f src/main/conf/docker-compose.yml up/down```
+### Using Makefile
+For docker compose 
 
-For scale:
+```make dock```
 
-```docker-compose -f src/main/conf/docker-compose.yml up --scale cassandra2=2```
+For podman compose
 
-URL to access
+```make pod```
 
-```http://localhost:8080/swagger-ui.html```
+### Scale 
+```docker-compose -f docker/docker-compose.yml up --scale tinyurl=2```
 
-[Additional]
 
-For node-tool
+## Testing
 
-```docker exec -it <> nodetool -u cassandra -pw cassandra status```
+Service runs behind nginx proxying to spring boot container tinyurl 
 
-For schema creation(alternative):
+### Swagger 
+Access http://localhost:4000/swagger-ui.html
 
+### Curl 
+####Create short URL for long URL 
 ```
-docker cp src/main/conf/schema.cql edfdac47b810:/opt/
-docker exec -it cinst1 cqlsh -f /opt/schema.cql
+curl -X POST "http://localhost:4000/tinyurl" \
+-H  "accept: application/json" \
+-H  "Content-Type: application/json" \
+-d "http://www.google.com"
 ```
 
+Response 
+```
+{"id":"ailjoN","longURL":"http://www.google.com"}
+```
 
+#### Access short URL to confirm redirect in browser
+
+```http://localhost:4000/tinyurl/ailjoN```
+
+### Delete mapping 
+
+```curl -X DELETE http://localhost:4000/tinyurl/ailjoN```
+
+
+Confirm again on the browser, accessing URL should return 404.
