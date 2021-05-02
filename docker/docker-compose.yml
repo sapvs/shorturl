@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  cassandra:
+    image: cassandra:latest
+    expose:
+      - "7199"
+      - "7000"
+      - "7001"
+      - "9042"
+      - "9160"
+    env_file:
+      - cassandra.env
+    restart: on-failure
+
+  redis:
+    image: redis:alpine
+    expose:
+      - "6739"
+
+  tinyurl:
+    depends_on:
+      - cassandra
+      - redis
+    build:
+      context: ../
+      dockerfile: docker/tinyurl/Dockerfile
+    expose:
+      - "8080"
+      - "8089"
+    restart: always
+    scale: 1
+
+  nginx:
+    build: ./nginx
+    depends_on:
+      - tinyurl
+    ports:
+      - "4000:4000"

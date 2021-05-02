@@ -1,13 +1,15 @@
-package com.sudosapan.shorturl;
+package com.test.tinyurl;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
-public class ShorturlApplication {
+@EnableCaching
+public class TinyURLApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ShorturlApplication.class, args);
+		SpringApplication.run(TinyURLApplication.class, args);
 	}
 
 }
