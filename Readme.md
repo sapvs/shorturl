@@ -43,7 +43,7 @@ Service runs behind nginx proxying to spring boot container tinyurl
 Access http://localhost:4000/swagger-ui.html
 
 ### Curl 
-####Create short URL for long URL 
+#### Create short URL for long URL 
 ```
 curl -X POST "http://localhost:4000/tinyurl" \
 -H  "accept: application/json" \
