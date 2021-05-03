@@ -36,8 +36,8 @@ public class TinyURLCassandraConfiguration extends AbstractCassandraConfiguratio
         final CreateKeyspaceSpecification specification =
                 CreateKeyspaceSpecification.createKeyspace(keyspaceName)
                         .ifNotExists()
-                        .with(KeyspaceOption.DURABLE_WRITES, true)
-                        .withSimpleReplication();
+                        .withSimpleReplication(1)
+                        .with(KeyspaceOption.DURABLE_WRITES, false);
         return Arrays.asList(specification);
     }
 

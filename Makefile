@@ -1,18 +1,17 @@
-image: package
-	podman build -t tinyurl:latest docker/tinyurl
-
 package: clean
 	mvn package
 
 clean:
 	mvn clean
 
-pod: package
-	podman-compose -f docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
+up: package
+	docker-compose --file docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
 
-dock:
-	sudo docker-compose -f docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
+down:
+	docker-compose --file docker/docker-compose.yml down
 
-kill:
-	podman-compose -f docker/docker-compose.yml down
+podup: package
+	podman-compose --file docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
 
+poddown:
+	podman-compose --file docker/docker-compose.yml down

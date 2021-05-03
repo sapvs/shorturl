@@ -24,6 +24,9 @@ services:
     build:
       context: ../
       dockerfile: docker/tinyurl/Dockerfile
+    environment:
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PORT=9042
     expose:
       - "8080"
       - "8089"
