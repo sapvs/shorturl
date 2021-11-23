@@ -1,4 +1,4 @@
-FROM sapvs/openjre-alpine:11-3.14
+FROM sapvs/openjre-alpine:8-3.14
 EXPOSE 8080
 ENV CASSANDRA_HOST=localhost
 ENV CASSANDRA_PORT=9042
