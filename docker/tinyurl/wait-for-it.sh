@@ -1,165 +1,184 @@
-#!/usr/bin/env sh
-#   Use this script to test if a given TCP host/port are available
+#!/bin/sh
 
-set -e
+# The MIT License (MIT)
+#
+# Copyright (c) 2017 Eficode Oy
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-cmdname=$(basename "$0")
+set -- "$@" -- "$TIMEOUT" "$QUIET" "$PROTOCOL" "$HOST" "$PORT" "$result"
+TIMEOUT=15
+QUIET=0
+# The protocol to make the request with, either "tcp" or "http"
+PROTOCOL="tcp"
 
 echoerr() {
-    if [ "$QUIET" -ne 1 ]; then
-        printf "%s\n" "$*" 1>&2;
-    fi
+  if [ "$QUIET" -ne 1 ]; then printf "%s\n" "$*" 1>&2; fi
 }
 
-usage()
-{
-    exitcode="$1"
-    cat << USAGE >&2
+usage() {
+  exitcode="$1"
+  cat << USAGE >&2
 Usage:
-    $cmdname host:port [-s] [-t timeout] [-- command args]
-    -h HOST | --host=HOST       Host or IP under test
-    -p PORT | --port=PORT       TCP port under test
-                                Alternatively, you specify the host and port as host:port
-    -s | --strict               Only execute subcommand if the test succeeds
-    -q | --quiet                Don't output any status messages
-    -t TIMEOUT | --timeout=TIMEOUT
-                                Timeout in seconds, zero for no timeout
-    -- COMMAND ARGS             Execute command with args after the test finishes
+  $0 host:port|url [-t timeout] [-- command args]
+  -q | --quiet                        Do not output any status messages
+  -t TIMEOUT | --timeout=timeout      Timeout in seconds, zero for no timeout
+  -- COMMAND ARGS                     Execute command with args after the test finishes
 USAGE
-    exit "$exitcode"
+  exit "$exitcode"
 }
 
-wait_for()
-{
-    if [ "$TIMEOUT" -gt 0 ]; then
-        echoerr "$cmdname: waiting $TIMEOUT seconds for $HOST:$PORT"
-    else
-        echoerr "$cmdname: waiting for $HOST:$PORT without a timeout"
-    fi
-    start_ts=$(date +%s)
-    while true
-    do
-        nc -z "$HOST" "$PORT" >/dev/null 2>&1
-        result=$?
-        if [ $result -eq 0 ]; then
-            end_ts=$(date +%s)
-            echoerr "$cmdname: $HOST:$PORT is available after $((end_ts - start_ts)) seconds"
-            break
-        fi
-        sleep 1
-    done
-    return $result
-}
+wait_for() {
+  case "$PROTOCOL" in
+    tcp)
+      if ! command -v nc >/dev/null; then
+        echoerr 'nc command is missing!'
+        exit 1
+      fi
+      ;;
+    wget)
+      if ! command -v wget >/dev/null; then
+        echoerr 'wget command is missing!'
+        exit 1
+      fi
+      ;;
+  esac
 
-wait_for_wrapper()
-{
-    # In order to support SIGINT during timeout: http://unix.stackexchange.com/a/57692
-    if [ "$QUIET" -eq 1 ]; then
-        timeout "$TIMEOUT" "$0" -q -child "$HOST":"$PORT" -t "$TIMEOUT" &
-    else
-        timeout "$TIMEOUT" "$0" --child "$HOST":"$PORT" -t "$TIMEOUT" &
-    fi
-    PID=$!
-    trap 'kill -INT -$PID' INT
-    wait $PID
-    RESULT=$?
-    if [ $RESULT -ne 0 ]; then
-        echoerr "$cmdname: timeout occurred after waiting $TIMEOUT seconds for $HOST:$PORT"
-    fi
-    return $RESULT
-}
-
-TIMEOUT=15
-STRICT=0
-CHILD=0
-QUIET=0
-# process arguments
-while [ $# -gt 0 ]
-do
-    case "$1" in
-        *:* )
-        HOST=$(printf "%s\n" "$1"| cut -d : -f 1)
-        PORT=$(printf "%s\n" "$1"| cut -d : -f 2)
-        shift 1
+  while :; do
+    case "$PROTOCOL" in
+      tcp)
+        nc -w 1 -z "$HOST" "$PORT" > /dev/null 2>&1
         ;;
-        --child)
-        CHILD=1
-        shift 1
+      http)
+        wget --timeout=1 -q "$HOST" -O /dev/null > /dev/null 2>&1
         ;;
-        -q | --quiet)
-        QUIET=1
-        shift 1
-        ;;
-        -s | --strict)
-        STRICT=1
-        shift 1
-        ;;
-        -h)
-        HOST="$2"
-        if [ "$HOST" = "" ]; then break; fi
-        shift 2
-        ;;
-        --host=*)
-        HOST=$(printf "%s" "$1" | cut -d = -f 2)
-        shift 1
-        ;;
-        -p)
-        PORT="$2"
-        if [ "$PORT" = "" ]; then break; fi
-        shift 2
-        ;;
-        --port=*)
-        PORT="${1#*=}"
-        shift 1
-        ;;
-        -t)
-        TIMEOUT="$2"
-        if [ "$TIMEOUT" = "" ]; then break; fi
-        shift 2
-        ;;
-        --timeout=*)
-        TIMEOUT="${1#*=}"
-        shift 1
-        ;;
-        --)
-        shift
-        break
-        ;;
-        --help)
-        usage 0
-        ;;
-        *)
-        echoerr "Unknown argument: $1"
-        usage 1
+      *)
+        echoerr "Unknown protocol '$PROTOCOL'"
+        exit 1
         ;;
     esac
+
+    result=$?
+
+    if [ $result -eq 0 ] ; then
+      if [ $# -gt 7 ] ; then
+        for result in $(seq $(($# - 7))); do
+          result=$1
+          shift
+          set -- "$@" "$result"
+        done
+
+        TIMEOUT=$2 QUIET=$3 PROTOCOL=$4 HOST=$5 PORT=$6 result=$7
+        shift 7
+        exec "$@"
+      fi
+      exit 0
+    fi
+
+    if [ "$TIMEOUT" -le 0 ]; then
+      break
+    fi
+    TIMEOUT=$((TIMEOUT - 1))
+
+    sleep 1
+  done
+  echo "Operation timed out" >&2
+  exit 1
+}
+
+while :; do
+  case "$1" in
+    http://*|https://*)
+    HOST="$1"
+    PROTOCOL="http"
+    shift 1
+    ;;
+    *:* )
+    HOST=$(printf "%s\n" "$1"| cut -d : -f 1)
+    PORT=$(printf "%s\n" "$1"| cut -d : -f 2)
+    shift 1
+    ;;
+    -q | --quiet)
+    QUIET=1
+    shift 1
+    ;;
+    -q-*)
+    QUIET=0
+    echoerr "Unknown option: $1"
+    usage 1
+    ;;
+    -q*)
+    QUIET=1
+    result=$1
+    shift 1
+    set -- -"${result#-q}" "$@"
+    ;;
+    -t | --timeout)
+    TIMEOUT="$2"
+    shift 2
+    ;;
+    -t*)
+    TIMEOUT="${1#-t}"
+    shift 1
+    ;;
+    --timeout=*)
+    TIMEOUT="${1#*=}"
+    shift 1
+    ;;
+    --)
+    shift
+    break
+    ;;
+    --help)
+    usage 0
+    ;;
+    -*)
+    QUIET=0
+    echoerr "Unknown option: $1"
+    usage 1
+    ;;
+    *)
+    QUIET=0
+    echoerr "Unknown argument: $1"
+    usage 1
+    ;;
+  esac
 done
 
-if [ "$HOST" = "" -o "$PORT" = "" ]; then
-    echoerr "Error: you need to provide a host and port to test."
-    usage 2
+if ! [ "$TIMEOUT" -ge 0 ] 2>/dev/null; then
+  echoerr "Error: invalid timeout '$TIMEOUT'"
+  usage 3
 fi
 
-if [ $CHILD -gt 0 ]; then
-    wait_for
-    RESULT=$?
-    exit $RESULT
-else
-    if [ "$TIMEOUT" -gt 0 ]; then
-        wait_for_wrapper
-        RESULT=$?
-    else
-        wait_for
-        RESULT=$?
+case "$PROTOCOL" in
+  tcp)
+    if [ "$HOST" = "" ] || [ "$PORT" = "" ]; then
+      echoerr "Error: you need to provide a host and port to test."
+      usage 2
     fi
-fi
+  ;;
+  http)
+    if [ "$HOST" = "" ]; then
+      echoerr "Error: you need to provide a host to test."
+      usage 2
+    fi
+  ;;
+esac
 
-if [ "$*" != "" ]; then
-    if [ $RESULT -ne 0 -a $STRICT -eq 1 ]; then
-        echoerr "$cmdname: strict mode, refusing to execute subprocess"
-        exit $RESULT
-    fi
-    exec "$@"
-else
-    exit $RESULT
-fi
+wait_for "$@"

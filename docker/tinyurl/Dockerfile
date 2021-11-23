@@ -10,5 +10,5 @@ RUN chmod a+x wait-for-it.sh
 ADD target/tinyurl-0.1.jar ./tinyurl.jar
 
 # Entry pint takes care of cassandra coming up on port 9042,
-ENTRYPOINT exec ./wait-for-it.sh -s -t 100 -h $CASSANDRA_HOST -p $CASSANDRA_PORT -- java -jar tinyurl.jar
+ENTRYPOINT exec ./wait-for-it.sh  $CASSANDRA_HOST:$CASSANDRA_PORT -t 100 -- java -jar tinyurl.jar
 
