@@ -4,13 +4,13 @@ package: clean
 clean:
 	mvn clean
 
-up: package
-	docker-compose --file docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
+up:
+	sudo docker-compose --file docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
 
 down:
-	docker-compose --file docker/docker-compose.yml down
+	sudo docker-compose --file docker/docker-compose.yml down
 
-podup: package
+podup:
 	podman-compose --file docker/docker-compose.yml up --build --force-recreate --abort-on-container-exit
 
 poddown:

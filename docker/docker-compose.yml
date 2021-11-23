@@ -16,13 +16,15 @@ services:
     image: redis:alpine
     expose:
       - "6739"
+    deploy:
+      replicas: 1
 
   tinyurl:
     depends_on:
       - cassandra
       - redis
     build:
-      context: ../
+      context: ..
       dockerfile: docker/tinyurl/Dockerfile
     environment:
       - CASSANDRA_HOST=cassandra
@@ -34,7 +36,9 @@ services:
     scale: 1
 
   nginx:
-    build: ./nginx
+    image: nginx:alpine
+    volumes: 
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:z
     depends_on:
       - tinyurl
     ports:

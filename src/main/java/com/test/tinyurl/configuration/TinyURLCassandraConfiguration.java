@@ -20,11 +20,27 @@ public class TinyURLCassandraConfiguration extends AbstractCassandraConfiguratio
     @Value("${spring.data.cassandra.keyspace-name}")
     private String keyspaceName;
 
+    @Value("${spring.data.cassandra.contact-points}")
+    private String contactPoints;
+
+    @Value("${spring.data.cassandra.port}")
+    private int port;
+
     @Override
     protected String getKeyspaceName() {
         return keyspaceName;
     }
 
+
+    @Override
+    public String getContactPoints() {
+        return contactPoints;
+    }
+
+    @Override
+    protected int getPort() {
+        return port;
+    }
 
     @Override
     public String[] getEntityBasePackages() {
