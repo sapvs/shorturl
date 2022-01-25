@@ -19,13 +19,8 @@ From this folder
 ```docker-compose up -f docker/docker-compose.yml```
 
 ### Using Makefile
-For docker compose 
 
-```make dock```
-
-For podman compose
-
-```make pod```
+```make up```
 
 ### Scale 
 ```docker-compose -f docker/docker-compose.yml up --scale shorturl=2```
@@ -34,6 +29,11 @@ For podman compose
 From this folder
 
 ```docker-compose down -f docker/docker-compose.yml```
+
+### Using Makefile
+
+```make down```
+
 
 ## Testing
 
