@@ -1,4 +1,4 @@
-package com.test.tinyurl.swagger;
+package com.sapvs.shorturl.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ public class Swagger2Configuration {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.test.tinyurl.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.test.shorturl.controller"))
                 .paths(PathSelectors.any())
                 .build().apiInfo(apiInfo());
     }

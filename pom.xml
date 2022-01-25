@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.test</groupId>
-    <artifactId>tinyurl</artifactId>
+    <artifactId>shorturl</artifactId>
     <version>0.1</version>
     <name>shorturl</name>
     <description>Url Shortener with Redis Cache and Galera database</description>

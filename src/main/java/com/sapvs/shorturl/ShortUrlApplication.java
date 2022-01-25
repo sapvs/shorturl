@@ -1,4 +1,4 @@
-package com.test.tinyurl;
+package com.sapvs.shorturl;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @EnableCaching
-public class TinyURLApplication {
+public class ShortUrlApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TinyURLApplication.class, args);
+		SpringApplication.run(ShortUrlApplication.class, args);
 	}
 
 }

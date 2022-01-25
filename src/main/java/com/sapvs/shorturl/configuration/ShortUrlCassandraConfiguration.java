@@ -1,6 +1,6 @@
-package com.test.tinyurl.configuration;
+package com.sapvs.shorturl.configuration;
 
-import com.test.tinyurl.model.TinyURLData;
+import com.sapvs.shorturl.model.ShortURLData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
@@ -15,8 +15,8 @@ import java.util.List;
 
 
 @Configuration
-@EnableCassandraRepositories(basePackages = "com.test.tinyurl.model")
-public class TinyURLCassandraConfiguration extends AbstractCassandraConfiguration {
+@EnableCassandraRepositories(basePackages = "com.sapvs.shorturl.model")
+public class ShortUrlCassandraConfiguration extends AbstractCassandraConfiguration {
     @Value("${spring.data.cassandra.keyspace-name}")
     private String keyspaceName;
 
@@ -44,7 +44,7 @@ public class TinyURLCassandraConfiguration extends AbstractCassandraConfiguratio
 
     @Override
     public String[] getEntityBasePackages() {
-        return new String[]{TinyURLData.class.getPackage().getName()};
+        return new String[]{ShortURLData.class.getPackage().getName()};
     }
 
     @Override

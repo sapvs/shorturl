@@ -28,7 +28,7 @@ For podman compose
 ```make pod```
 
 ### Scale 
-```docker-compose -f docker/docker-compose.yml up --scale tinyurl=2```
+```docker-compose -f docker/docker-compose.yml up --scale shorturl=2```
 
 ### Stop
 From this folder
@@ -37,7 +37,7 @@ From this folder
 
 ## Testing
 
-Service runs behind nginx proxying to spring boot container tinyurl 
+Service runs behind nginx proxying to spring boot container shorturl
 
 ### Swagger 
 Access http://localhost:4000/swagger-ui.html
@@ -45,7 +45,7 @@ Access http://localhost:4000/swagger-ui.html
 ### Curl 
 #### Create short URL for long URL 
 ```
-curl -X POST "http://localhost:4000/tinyurl" \
+curl -X POST "http://localhost:4000/shorturl" \
 -H  "accept: application/json" \
 -H  "Content-Type: application/json" \
 -d "http://www.google.com"
@@ -58,11 +58,11 @@ Response
 
 #### Access short URL to confirm redirect in browser
 
-```http://localhost:4000/tinyurl/ailjoN```
+```http://localhost:4000/shorturl/ailjoN```
 
 ### Delete mapping 
 
-```curl -X DELETE http://localhost:4000/tinyurl/ailjoN```
+```curl -X DELETE http://localhost:4000/shorturl/ailjoN```
 
 
 Confirm again on the browser, accessing URL should return 404.

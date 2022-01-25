@@ -1,7 +1,7 @@
-package com.test.tinyurl.controller;
+package com.sapvs.shorturl.controller;
 
-import com.test.tinyurl.model.TinyURLData;
-import com.test.tinyurl.service.TinyURLService;
+import com.sapvs.shorturl.model.ShortURLData;
+import com.sapvs.shorturl.service.ShortUrlService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -20,15 +20,15 @@ import static java.util.Objects.nonNull;
 
 
 @RestController
-@RequestMapping("tinyurl")
+@RequestMapping("shorturl")
 @Api(value = "API to CRUD shortened URLs with Redis Cache and Cassandra backend", produces = "application/json")
-public class TinyURLRestController {
+public class ShortUrlRestController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TinyURLRestController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ShortUrlRestController.class);
 
     @Autowired
-    private TinyURLService tinyURLService;
-    private TinyURLData shortURLMapping;
+    private ShortUrlService tinyURLService;
+    private ShortURLData shortURLMapping;
 
     @ApiOperation(value = "For given short URL, redirect to Long URL", produces = "application/json")
     @ApiResponses(value = {@ApiResponse(code = 302, message = "Long URL found for short url"),
@@ -53,9 +53,9 @@ public class TinyURLRestController {
             @ApiResponse(code = 500, message = "Internal server error"),
             @ApiResponse(code = 404, message = "Short URL not found in database.")})
     @GetMapping
-    public ResponseEntity<List<TinyURLData>> getAll() {
+    public  ResponseEntity<List<ShortURLData>> getAll() {
         LOG.info("Getting all ");
-        List<TinyURLData> all = tinyURLService.getAll();
+        List<ShortURLData> all = tinyURLService.getAll();
         LOG.debug("Got all  {}", all);
         return ResponseEntity.status(HttpStatus.OK).
                 body(all);
@@ -79,10 +79,10 @@ public class TinyURLRestController {
             @ApiResponse(code = 500, message = "Internal server error"),
             @ApiResponse(code = 404, message = "Short URL not found in database.")})
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<TinyURLData> createShortURL(@RequestBody String longUrl) {
+    public ResponseEntity<ShortURLData> createShortURL(@RequestBody String longUrl) {
         LOG.info("Creating short mapping for {}", longUrl);
         shortURLMapping = tinyURLService.createShortURLMapping(longUrl);
         LOG.info("Created short mapping {}", shortURLMapping);
-        return new ResponseEntity<TinyURLData>(shortURLMapping, HttpStatus.CREATED);
+        return new ResponseEntity<ShortURLData>(shortURLMapping, HttpStatus.CREATED);
     }
 }

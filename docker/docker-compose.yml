@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   cassandra:
-    image: cassandra:latest
+    image: sapvs/cassandra-alpine:3.0.25-8
     expose:
       - "7199"
       - "7000"
@@ -11,6 +11,9 @@ services:
     env_file:
       - cassandra.env
     restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 1
 
   redis:
     image: redis:alpine
@@ -19,27 +22,26 @@ services:
     deploy:
       replicas: 1
 
-  tinyurl:
+  shorturl:
     depends_on:
       - cassandra
       - redis
     build:
       context: ..
-      dockerfile: docker/tinyurl/Dockerfile
+      dockerfile: docker/shorturl/Dockerfile
     environment:
       - CASSANDRA_HOST=cassandra
       - CASSANDRA_PORT=9042
     expose:
       - "8080"
       - "8089"
-    restart: always
-    scale: 1
+    restart: on-failure
 
   nginx:
     image: nginx:alpine
-    volumes: 
+    volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:z
     depends_on:
-      - tinyurl
+      - shorturl
     ports:
       - "4000:4000"

@@ -1,7 +1,7 @@
-package com.test.tinyurl.service;
+package com.sapvs.shorturl.service;
 
-import com.test.tinyurl.model.TinyURLData;
-import com.test.tinyurl.repository.TinyURLCassandraRepository;
+import com.sapvs.shorturl.model.ShortURLData;
+import com.sapvs.shorturl.repository.ShortUrlCassandraRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +14,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TinyURLService {
+public class ShortUrlService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TinyURLService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ShortUrlService.class);
 
     @Value("${short.url.len}")
     private int shortIdLength;
 
     @Autowired
-    TinyURLCassandraRepository tinyURLCassandraRepository;
+    ShortUrlCassandraRepository tinyURLCassandraRepository;
 
     @Cacheable(value = "shortToUrlCache")
     public String getLongURLForID(String id) {
         LOG.info("Searching for long URL against ID={}", id);
-        Optional<TinyURLData> tinyURLOptional = tinyURLCassandraRepository.findById(id);
+        Optional<ShortURLData> tinyURLOptional = tinyURLCassandraRepository.findById(id);
         if (tinyURLOptional.isPresent()) {
             LOG.info("long URL found={}", tinyURLOptional.get());
             return tinyURLOptional.get().getLongURL();
@@ -36,15 +36,15 @@ public class TinyURLService {
         return null;
     }
 
-    public List<TinyURLData> getAll() {
+    public List<ShortURLData> getAll() {
         LOG.info("Getting all URL mappings");
         return tinyURLCassandraRepository.findAll();
     }
 
 
-    public TinyURLData createShortURLMapping(String longUrl) {
+    public ShortURLData createShortURLMapping(String longUrl) {
         LOG.info("Creating short URL mapping for {}", longUrl);
-        TinyURLData tinyURLData = tinyURLCassandraRepository.save(TinyURLData.instance(shortIdLength, longUrl));
+        ShortURLData tinyURLData = tinyURLCassandraRepository.save(ShortURLData.instance(shortIdLength, longUrl));
         LOG.info("Created short URL mapping {}", tinyURLData);
         return tinyURLData;
     }

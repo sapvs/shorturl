@@ -1,14 +1,13 @@
-package com.test.tinyurl.model;
+package com.sapvs.shorturl.model;
 
+import com.sapvs.shorturl.util.Util;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.io.Serializable;
 
-import static com.test.tinyurl.util.Util.createID;
-
-@Table("tinyurldata")
-public class TinyURLData implements Serializable {
+@Table("shorturldata")
+public class ShortURLData implements Serializable {
     @PrimaryKey
     private String id;
 
@@ -30,7 +29,7 @@ public class TinyURLData implements Serializable {
         this.longURL = longURL;
     }
 
-    public TinyURLData(String id, String longURL) {
+    public ShortURLData(String id, String longURL) {
         this.id = id;
         this.longURL = longURL;
     }
@@ -43,7 +42,7 @@ public class TinyURLData implements Serializable {
                 '}';
     }
 
-    public static TinyURLData instance(int idLength, String longURL) {
-        return new TinyURLData(createID(idLength), longURL);
+    public static ShortURLData instance(int idLength, String longURL) {
+        return new ShortURLData(Util.createID(idLength), longURL);
     }
 }
